@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8" />
+        <title>MAIN</title>
+        <link rel="stylesheet" type="text/css" href="main.css" />
+    </head>
+
+    <body>
+        <p>MAIN</p>
+        <a href="/one">TO ONE</a>
+        <div id="header"></div>
+        <form action="/api/user/register" method="post">
+            <p>REGISTER NEW USER</p>
+            <p>username</p>
+            <input type="text" name="username" value="Mickey" />
+            <p>password</p>
+            <input type="text" name="password" value="Mouse" />
+            <input type="submit" value="Submit" />
+        </form>
+        <form action="/api/user/login" method="post">
+            <p>LOGIN A USER</p>
+            <p>username</p>
+            <input type="text" name="username" value="Mickey" />
+            <p>password</p>
+            <input type="text" name="password" value="Mouse" />
+            <input type="submit" value="Submit" />
+        </form>
+    </body>
+</html>
