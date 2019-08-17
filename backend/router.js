@@ -1,6 +1,7 @@
 const url_parser = require("url");
 const fs = require("fs");
 const error = require("./errors");
+const type_checker = require("../Util/type_check");
 
 var gets = {};
 var posts = {};
@@ -35,7 +36,7 @@ function route(req, res) {
     }
 }
 
-function routeToFileAsync(res, path, content_type, error_fallback) {
+function routeToFileAsync(res, path, error_fallback) {
     fs.readFile(path, (err, data) => {
         if (err) {
             if (typeof error_fallback == "function") {
@@ -45,7 +46,7 @@ function routeToFileAsync(res, path, content_type, error_fallback) {
             }
         } else {
             res.writeHead(200, {
-                "Content-Type": content_type
+                "Content-Type": type_checker.checkType(path)
             });
             res.write(data);
             res.end();
@@ -53,10 +54,10 @@ function routeToFileAsync(res, path, content_type, error_fallback) {
     });
 }
 
-function pushAsset(stream, request_path, resource_path, content_type) {
+function pushAsset(request_path, resource_path, stream) {
     stream.pushStream({ ":path": request_path }, (err, pushStream, headers) => {
         pushStream.respondWithFile(resource_path, {
-            "Content-Type": content_type
+            "Content-Type": type_checker.checkType(resource_path)
         });
     });
 }

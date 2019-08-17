@@ -13,12 +13,6 @@ const error = require("./errors");
 const api = require("../Routes/api");
 const frontend = require("../Routes/frontend");
 
-// router.get("/api/admin/login", (res) => {
-//     res.writeHead(200, { "Content-Type": "text/html" });
-//     res.write("Got to login");
-//     res.end();
-// });
-
 //-----------------------------MIDDLEWARES-----------------------------
 
 // middleware.mw("/api/admin", (req) => {
@@ -111,10 +105,3 @@ const upgrade_server = http.createServer((req, res) => {
 });
 
 upgrade_server.listen(80);
-
-// //HTTP2 SERVER
-// const http2_server = http2.createSecureServer(options, (req, res) => {
-//     console.log("REQUEST TO HTTP2");
-// });
-
-// http2_server.listen(3001);
