@@ -29,20 +29,15 @@ const frontend = require("../Routes/frontend");
 
 //File not found
 error.setError(404, (res) => {
-    router.routeToFileAsync(
-        res,
-        "./frontend/html/404.html",
-        "text/html",
-        (res, err) => {
-            console.log("Route to 404 failed!");
-            console.log(err);
-            res.writeHead(404, {
-                "Content-Type": "text/html"
-            });
-            res.write("404 File Not Found");
-            res.end();
-        }
-    );
+    router.routeToFileAsync(res, "./frontend/html/404.html", 404).catch((err) => {
+        console.log("Route to 404 failed!");
+        console.log(err);
+        res.writeHead(404, {
+            "Content-Type": "text/html"
+        });
+        res.write("404 File Not Found");
+        res.end();
+    });
 });
 
 //Method not allowed
@@ -52,6 +47,14 @@ error.setError(405, (res) => {
     });
     res.write("405 Method Not Allowed");
     res.end();
+});
+
+error.setError(500, (res) => {
+   res.writeHead(500, {
+       "Content-Type": "text/html"
+   });
+   res.write("500 internal server error");
+   res.end();
 });
 
 //-----------------------------SERVER-----------------------------
@@ -71,21 +74,67 @@ var options = {
     cert: fs.readFileSync("./SSL/localhost.crt")
 };
 
+const timeout_ms = 5000;
 //MAIN SERVER
+// const server = http2.createSecureServer(options, (req, res) => {
+//     console.log("---------------------------------------REQ--------------------------------------");
+//     if (middleware.executeMw(req)) {
+//         try {
+//             router.route(req, res);
+//         } catch (res_code) {
+//             console.log(res_code);
+//             error.handleError(res, res_code);
+//         }
+//     } else {
+//         error.handleError(res, 500);
+//     }
+// });
+
+//-----------------------------PROMISE - server------------------------------------;
+
+// const server = http2.createSecureServer(options, (req, res) => {
+//     console.log("---------------------------------------REQ--------------------------------------");
+//     const request_timeout = setTimeout(() => {
+//         res.writeHead(408);
+//         res.write("Request timed out!");
+//         res.end();
+//     }, timeout_ms);
+//     try {
+//         if (router.route(req, res)) {
+//             console.log("CLEARING TIMEOUT");
+//             clearTimeout(request_timeout);
+//         }
+//     } catch (res_code) {
+//         console.log(res_code);
+//         error.handleError(res, res_code);
+//     }
+// });
+
 const server = http2.createSecureServer(options, (req, res) => {
-    console.log(
-        "---------------------------------------REQ--------------------------------------"
-    );
-    if (middleware.executeMw(req)) {
+    console.log("---------------------------------------REQ--------------------------------------");
+    const request_promise = new Promise((resolve, reject) => {
+        const request_timeout = setTimeout(() => {
+            console.log("VALUE OF RES.FINISHED: " + res.finished);
+            if (!res.finished) {
+                console.log("TIMING OUT REQUEST");
+                res.writeHead(400);
+                res.write("Request timed out!");
+                res.end();
+            }
+        }, timeout_ms);
+
+        middleware.executeMw(req);
         try {
             router.route(req, res);
         } catch (res_code) {
-            console.log(res_code);
-            error.handleError(res, res_code);
+            reject(res_code);
         }
-    } else {
-        error.handleError(res, 500);
-    }
+    });
+
+    request_promise.catch((res_code) => {
+        console.log(res_code);
+        error.handleError(res, res_code);
+    });
 });
 
 server.listen(443, () => {

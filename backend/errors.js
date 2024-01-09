@@ -19,6 +19,7 @@ function setDefaultHandler(callback) {
 //-----------------------------HANDLER-----------------------------
 
 function handleError(res, error_code) {
+    console.log("HANDLING ERROR " + error_code);
     if (errors[error_code]) {
         errors[error_code](res);
     } else {

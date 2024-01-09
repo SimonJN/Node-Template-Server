@@ -36,22 +36,23 @@ function route(req, res) {
     }
 }
 
-function routeToFileAsync(res, path, error_fallback) {
-    fs.readFile(path, (err, data) => {
-        if (err) {
-            if (typeof error_fallback == "function") {
-                error_fallback(res, err);
+function routeToFileAsync(res, path, res_code) {
+    return new Promise((resolve, reject) =>
+        fs.readFile(path, (err, data) => {
+            if (err) {
+                reject(404);
             } else {
-                error.handleError(res, 404);
+                if (!res_code) {
+                    res_code = 200;
+                }
+                res.writeHead(res_code, {
+                    "Content-Type": type_checker.checkType(path)
+                });
+                res.write(data);
+                res.end();
             }
-        } else {
-            res.writeHead(200, {
-                "Content-Type": type_checker.checkType(path)
-            });
-            res.write(data);
-            res.end();
-        }
-    });
+        })
+    );
 }
 
 function pushAsset(request_path, resource_path, stream) {

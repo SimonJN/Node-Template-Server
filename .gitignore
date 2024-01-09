@@ -90,3 +90,6 @@ typings/
 #SSL
 SSL/
 RootCA/
+
+# .idea
+.idea/*
